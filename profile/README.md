@@ -94,8 +94,6 @@ Every contribution — code, docs, or sponsorship — helps developers ship fast
 
 - 🌐 **Website:** [spooled.cloud](https://spooled.cloud)
 - 📖 **Docs:** [spooled.cloud/docs](https://spooled.cloud/docs)
-- 💬 **Discord:** [Join our community](https://discord.gg/spooled)
-- 📧 **Email:** support@spooled.cloud
 
 ---
 
