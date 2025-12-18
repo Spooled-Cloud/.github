@@ -1,284 +1,469 @@
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://spooled.cloud/logo-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="https://spooled.cloud/logo-light.svg">
+  <img alt="Spooled" src="https://spooled.cloud/logo-light.svg" width="280">
+</picture>
+
 # Spooled Cloud
 
-Open-source webhook queue & background job infrastructure — with a hosted cloud and a full self-host option.
+### Open-source webhook queue & background job infrastructure
 
-Spooled is a **reliable queue + worker coordination system** for:
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
+[![Go SDK](https://img.shields.io/badge/Go_SDK-v1.0.5-00ADD8?logo=go)](https://github.com/Spooled-Cloud/spooled-sdk-go)
+[![Node SDK](https://img.shields.io/npm/v/@spooled/sdk?label=Node%20SDK&logo=npm)](https://www.npmjs.com/package/@spooled/sdk)
+[![Python SDK](https://img.shields.io/pypi/v/spooled?label=Python%20SDK&logo=python)](https://pypi.org/project/spooled/)
+[![PHP SDK](https://img.shields.io/packagist/v/spooled/sdk?label=PHP%20SDK&logo=php)](https://packagist.org/packages/spooled/sdk)
 
-- Webhook ingestion (custom incoming endpoints)
-- Background jobs (leases, retries, DLQ)
-- Workflows (DAG dependencies)
-- Schedules (timezone-aware, **6-field cron** with seconds)
-- Real-time visibility (WebSocket + SSE; gRPC streaming for high-throughput workers)
+---
+
+## 🤔 What is Spooled?
+
+**Spooled is like a super-reliable to-do list for your servers.**
+
+Imagine you have a website that needs to:
+- Send welcome emails when users sign up
+- Process payments from Stripe
+- Generate PDF reports
+- Resize uploaded images
+
+These tasks can fail (email server down, payment timeout, etc.). Spooled makes sure they **always get done** — with automatic retries, scheduling, and real-time monitoring.
 
 ```
-Stripe webhook → Spooled → Your worker → ✅ done (or retried automatically)
+┌──────────────────────────────────────────────────────────────────────────┐
+│                                                                          │
+│   YOUR APP             SPOOLED                       YOUR WORKERS        │
+│   ────────             ───────                       ────────────        │
+│                                                                          │
+│  ┌──────────┐        ┌──────────────────┐           ┌─────────────┐      │
+│  │   User   │───────▶│    Job Queue     │──────────▶│   Worker    │      │
+│  │   signs  │ Enqueue│                  │   Claim   │   sends     │      │
+│  │    up    │   job  │  ┌───┐┌───┐┌───┐ │    job    │   welcome   │      │
+│  └──────────┘        │  │ J ││ J ││ J │ │           │    email    │      │
+│                      │  └───┘└───┘└───┘ │           └──────┬──────┘      │
+│                      │                  │                  │             │
+│  ┌──────────┐        │    * Retries     │           ┌──────▼──────┐      │
+│  │  Stripe  │───────▶│    * Priority    │           │    DONE!    │      │
+│  │  webhook │        │    * Schedules   │           │     or      │      │
+│  └──────────┘        │    * Dead-letter │           │    Retry    │      │
+│                      └──────────────────┘           └─────────────┘      │
+│                                                                          │
+└──────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## What’s in this repo (monorepo)
+## ✨ Key Features
 
-This repository contains the full product:
-
-- `spooled-backend/` — Rust backend (REST + WebSocket/SSE + gRPC), Postgres migrations, infra/docker, k8s, OpenAPI
-- `spooled-dashboard/` — Web dashboard (queue/job/workflow visibility + account/billing)
-- `spooled-frontend/` — Marketing site + docs (Astro)
-- `spooled-sdk-nodejs/` — Node.js/TypeScript SDK (`@spooled/sdk`)
-- `spooled-sdk-python/` — Python SDK (`spooled`)
-- `spooled-sdk-go/` — Go SDK (`github.com/spooled-cloud/spooled-sdk-go`)
-- `spooled-sdk-php/` — PHP SDK (Composer package)
-
-For “golden” real-world examples, the SDK test scripts are the best reference:
-
-- Node: `spooled-sdk-nodejs/scripts/test-local.ts`
-- Python: `spooled-sdk-python/scripts/test_local.py`
-- Go: `spooled-sdk-go/scripts/test-local/main.go`
-- PHP: `spooled-sdk-php/scripts/test-local.php`
+| Feature | Description |
+|---------|-------------|
+| 📬 **Job Queues** | Reliable FIFO queues with priority support (0-100) |
+| 🔄 **Automatic Retries** | Configurable retry policies with exponential backoff |
+| ⏰ **Schedules** | Cron-based scheduling with timezone support (6-field with seconds!) |
+| 🔀 **Workflows** | DAG-based job dependencies (run job B after job A completes) |
+| 🪝 **Webhooks** | Receive webhooks from Stripe, GitHub, etc. → auto-queue as jobs |
+| 📊 **Real-time Dashboard** | See all your jobs, queues, and workers live |
+| 🚀 **High Performance** | gRPC streaming for workers processing 1000s of jobs/sec |
+| ☠️ **Dead Letter Queue** | Failed jobs are saved for inspection and manual retry |
 
 ---
 
-## Production endpoints
+## 🚀 Quick Start (5 minutes)
 
-- Marketing + docs: `https://spooled.cloud`
-- Dashboard: `https://dashboard.spooled.cloud`
-- REST API (also WebSocket + SSE): `https://api.spooled.cloud`
-- gRPC API: `grpc.spooled.cloud:443` (TLS)
+### Step 1: Get an API Key
 
----
+1. Go to [dashboard.spooled.cloud](https://dashboard.spooled.cloud)
+2. Sign up / Log in
+3. Copy your API key (starts with `sk_live_...` or `sk_test_...`)
 
-## Authentication / API keys
+### Step 2: Create Your First Job
 
-- **Current prefixes**: `sp_live_...` (production) and `sp_test_...` (test/dev)
-- **Legacy**: some tooling still accepts `sk_live_...` / `sk_test_...` (older keys)
+Choose your language:
 
-REST auth is via:
-
-- `Authorization: Bearer <API_KEY>`
-
-gRPC auth is via metadata:
-
-- `x-api-key: <API_KEY>`
-
----
-
-## Quick start: enqueue a job
-
-### REST (cURL)
+<details>
+<summary><b>🟢 Node.js / TypeScript</b></summary>
 
 ```bash
-curl -X POST https://api.spooled.cloud/api/v1/jobs \
-  -H "Authorization: Bearer sp_live_YOUR_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "queue_name": "emails",
-    "payload": { "to": "user@example.com", "template": "welcome" },
-    "idempotency_key": "welcome-user-123",
-    "priority": 10
-  }'
+npm install @spooled/sdk
 ```
 
-### Node.js / TypeScript SDK
-
-```ts
+```typescript
 import { SpooledClient } from "@spooled/sdk";
 
-const client = new SpooledClient({ apiKey: process.env.SPOOLED_API_KEY! });
-
-const { id } = await client.jobs.create({
-  queueName: "emails",
-  payload: { to: "user@example.com", template: "welcome" },
-  idempotencyKey: "welcome-user-123",
-  priority: 10,
+const client = new SpooledClient({ 
+  apiKey: "sk_live_YOUR_API_KEY" 
 });
 
-console.log("Job created:", id);
-```
+// Create a job
+const job = await client.jobs.create({
+  queueName: "emails",
+  payload: { 
+    to: "user@example.com", 
+    subject: "Welcome!" 
+  }
+});
 
-### Python SDK
+console.log("✅ Job created:", job.id);
+```
+</details>
+
+<details>
+<summary><b>🐍 Python</b></summary>
+
+```bash
+pip install spooled
+```
 
 ```python
 from spooled import SpooledClient
-import os
 
-client = SpooledClient(api_key=os.environ["SPOOLED_API_KEY"])
+client = SpooledClient(api_key="sk_live_YOUR_API_KEY")
 
-res = client.jobs.create({
+# Create a job
+job = client.jobs.create({
     "queue_name": "emails",
-    "payload": {"to": "user@example.com", "template": "welcome"},
-    "idempotency_key": "welcome-user-123",
-    "priority": 10,
+    "payload": {
+        "to": "user@example.com",
+        "subject": "Welcome!"
+    }
 })
 
-print("Job created:", res.id)
+print(f"✅ Job created: {job.id}")
 client.close()
 ```
+</details>
 
-### Go SDK
+<details>
+<summary><b>🔵 Go</b></summary>
+
+```bash
+go get github.com/spooled-cloud/spooled-sdk-go
+```
 
 ```go
 package main
 
 import (
-	"context"
-	"fmt"
-	"os"
-
-	"github.com/spooled-cloud/spooled-sdk-go/spooled"
-	"github.com/spooled-cloud/spooled-sdk-go/spooled/resources"
+    "context"
+    "fmt"
+    "github.com/spooled-cloud/spooled-sdk-go/spooled"
+    "github.com/spooled-cloud/spooled-sdk-go/spooled/resources"
 )
 
-func ptr[T any](v T) *T { return &v }
-
 func main() {
-	client := spooled.NewClient(spooled.WithAPIKey(os.Getenv("SPOOLED_API_KEY")))
+    client := spooled.NewClient(
+        spooled.WithAPIKey("sk_live_YOUR_API_KEY"),
+    )
 
-	resp, err := client.Jobs().Create(context.Background(), &resources.CreateJobRequest{
-		QueueName:       "emails",
-		Payload:         map[string]interface{}{"to": "user@example.com", "template": "welcome"},
-		IdempotencyKey:  ptr("welcome-user-123"),
-		Priority:        ptr(10),
-	})
-	if err != nil {
-		panic(err)
-	}
+    job, _ := client.Jobs().Create(context.Background(), &resources.CreateJobRequest{
+        QueueName: "emails",
+        Payload: map[string]any{
+            "to":      "user@example.com",
+            "subject": "Welcome!",
+        },
+    })
 
-	fmt.Println("Job created:", resp.ID)
+    fmt.Println("✅ Job created:", job.ID)
 }
 ```
+</details>
 
-### PHP SDK
+<details>
+<summary><b>🐘 PHP</b></summary>
+
+```bash
+composer require spooled/sdk
+```
 
 ```php
 <?php
-
-declare(strict_types=1);
-
 use Spooled\SpooledClient;
 use Spooled\Config\ClientOptions;
 
 $client = new SpooledClient(new ClientOptions(
-    apiKey: getenv('SPOOLED_API_KEY'),
+    apiKey: 'sk_live_YOUR_API_KEY'
 ));
 
 $job = $client->jobs->create([
     'queue' => 'emails',
-    'payload' => ['to' => 'user@example.com', 'template' => 'welcome'],
-    'idempotencyKey' => 'welcome-user-123',
-    'priority' => 10,
+    'payload' => [
+        'to' => 'user@example.com',
+        'subject' => 'Welcome!'
+    ]
 ]);
 
-echo "Job created: {$job->id}\n";
+echo "✅ Job created: {$job->id}\n";
 ```
+</details>
 
----
-
-## Bulk enqueue (up to 100 jobs / request)
-
-### REST (cURL)
+<details>
+<summary><b>🌐 cURL (REST API)</b></summary>
 
 ```bash
-curl -X POST https://api.spooled.cloud/api/v1/jobs/bulk \
-  -H "Authorization: Bearer sp_live_YOUR_API_KEY" \
+curl -X POST https://api.spooled.cloud/api/v1/jobs \
+  -H "Authorization: Bearer sk_live_YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
     "queue_name": "emails",
-    "jobs": [
-      { "payload": { "to": "a@example.com" } },
-      { "payload": { "to": "b@example.com" } }
-    ],
-    "default_priority": 5
+    "payload": {
+      "to": "user@example.com",
+      "subject": "Welcome!"
+    }
   }'
 ```
+</details>
+
+### Step 3: Process Jobs (Worker)
+
+Your worker claims jobs, processes them, and marks them complete:
+
+<details>
+<summary><b>🟢 Node.js Worker</b></summary>
+
+```typescript
+import { SpooledWorker } from "@spooled/sdk";
+
+const worker = new SpooledWorker({
+  apiKey: "sk_live_YOUR_API_KEY",
+  queueName: "emails",
+  handler: async (job) => {
+    // Your business logic here
+    console.log("Processing:", job.payload);
+    
+    await sendEmail(job.payload.to, job.payload.subject);
+    
+    return { success: true };
+  }
+});
+
+worker.start();
+console.log("🚀 Worker started, waiting for jobs...");
+```
+</details>
+
+<details>
+<summary><b>🐍 Python Worker</b></summary>
+
+```python
+from spooled import SpooledWorker
+
+def handle_job(job):
+    print(f"Processing: {job.payload}")
+    send_email(job.payload["to"], job.payload["subject"])
+    return {"success": True}
+
+worker = SpooledWorker(
+    api_key="sk_live_YOUR_API_KEY",
+    queue_name="emails",
+    handler=handle_job
+)
+
+print("🚀 Worker started, waiting for jobs...")
+worker.start()
+```
+</details>
+
+<details>
+<summary><b>🔵 Go Worker</b></summary>
+
+```go
+package main
+
+import (
+    "context"
+    "fmt"
+    "github.com/spooled-cloud/spooled-sdk-go/spooled"
+    "github.com/spooled-cloud/spooled-sdk-go/spooled/worker"
+)
+
+func main() {
+    w := spooled.NewSpooledWorker(
+        "sk_live_YOUR_API_KEY",
+        "emails",
+        func(ctx context.Context, job *worker.Job) (map[string]any, error) {
+            fmt.Println("Processing:", job.Payload)
+            // Your business logic here
+            return map[string]any{"success": true}, nil
+        },
+    )
+
+    fmt.Println("🚀 Worker started, waiting for jobs...")
+    w.Start(context.Background())
+}
+```
+</details>
 
 ---
 
-## Incoming webhooks (custom endpoint → queued jobs)
+## 🏗️ Architecture Overview
 
-Spooled can generate custom incoming webhook endpoints that enqueue jobs for you:
-
-```text
-POST /api/v1/webhooks/{org_id}/custom
-X-Webhook-Token: whk_...
-Content-Type: application/json
-
-{ "queue_name": "payments", "payload": { ... } }
+```
+                     ┌──────────────────────────────────────────┐
+                     │              SPOOLED CLOUD               │
+                     │                                          │
+ ┌──────────┐        │    ┌────────────────────────────────┐    │        ┌──────────┐
+ │   Your   │  REST  │    │           API Server           │    │  REST  │   Your   │
+ │   App    │───────▶│    │    (Rust, high-performance)    │◀───┼────────│  Workers │
+ └──────────┘        │    │                                │    │        └──────────┘
+                     │    │    * Job management            │    │
+ ┌──────────┐        │    │    * Queue operations          │    │        ┌──────────┐
+ │  Stripe  │  HTTP  │    │    * Webhook ingestion         │    │  gRPC  │ High-vol │
+ │  GitHub  │───────▶│    │    * Schedule execution        │    │◀───────│  Workers │
+ │   etc.   │        │    └───────────────┬────────────────┘    │        └──────────┘
+ └──────────┘        │                    │                     │
+                     │                    ▼                     │
+                     │    ┌────────────────────────────────┐    │
+                     │    │       PostgreSQL + Redis       │    │
+                     │    │  (Durable storage + caching)   │    │
+                     │    └────────────────────────────────┘    │
+                     │                                          │
+                     │    ┌────────────────────────────────┐    │        ┌──────────┐
+                     │    │           Dashboard            │    │  WS/   │   You    │
+                     │    │   (Real-time job monitoring)   │◀───┼──SSE───│ watching │
+                     │    └────────────────────────────────┘    │        └──────────┘
+                     └──────────────────────────────────────────┘
 ```
 
 ---
 
-## Local development
+## 📦 What's in This Repository
 
-### Prereqs
+This is a **monorepo** containing the entire Spooled platform:
 
-- Docker (for Postgres/Redis/PgBouncer)
-- Rust (backend)
-- Node.js 20+ (dashboard + marketing/docs)
-- Go (Go SDK)
-- Python 3.11+ (Python SDK)
-- PHP 8.2+ + Composer (PHP SDK)
+```
+spooled-cloud/
+├── spooled-backend/       # 🦀 Rust API server (REST + gRPC + WebSocket)
+├── spooled-dashboard/     # ⚛️  React dashboard (job monitoring, billing)
+├── spooled-frontend/      # 🚀 Astro marketing site + documentation
+├── spooled-sdk-nodejs/    # 🟢 Node.js/TypeScript SDK
+├── spooled-sdk-python/    # 🐍 Python SDK
+├── spooled-sdk-go/        # 🔵 Go SDK
+└── spooled-sdk-php/       # 🐘 PHP SDK
+```
 
-### 1) Backend (REST on `:8080`, gRPC on `:50051`)
+### SDK Status
+
+| SDK | Package | Status | Tests |
+|-----|---------|--------|-------|
+| Node.js | `@spooled/sdk` | ✅ Production Ready | 175 tests |
+| Python | `spooled` | ✅ Production Ready | 173 tests |
+| Go | `github.com/spooled-cloud/spooled-sdk-go` | ✅ Production Ready | 194 tests |
+| PHP | `spooled/sdk` | ✅ Production Ready | 175 tests |
+
+---
+
+## 🔑 Authentication
+
+### API Key Formats
+
+| Prefix | Environment | Usage |
+|--------|-------------|-------|
+| `sk_live_...` | Production | Real data, billing enabled |
+| `sk_test_...` | Test/Dev | Safe for testing, no billing |
+
+> **Note**: Documentation uses `sp_live_`/`sp_test_` prefixes to avoid GitHub secret scanning. All SDKs accept both formats.
+
+### How to Authenticate
+
+**REST API** — Use Bearer token in header:
+```http
+Authorization: Bearer sk_live_YOUR_API_KEY
+```
+
+**gRPC API** — Use metadata:
+```
+x-api-key: sk_live_YOUR_API_KEY
+```
+
+---
+
+## 🌐 Production Endpoints
+
+| Service | URL | Protocol |
+|---------|-----|----------|
+| 🌍 Website & Docs | https://spooled.cloud | HTTPS |
+| 📊 Dashboard | https://dashboard.spooled.cloud | HTTPS |
+| 🔌 REST API | https://api.spooled.cloud | HTTPS |
+| ⚡ gRPC API | grpc.spooled.cloud:443 | gRPC + TLS |
+
+---
+
+## 💻 Local Development
+
+### Prerequisites
+
+| Tool | Version | Purpose |
+|------|---------|---------|
+| Docker | Latest | Database & cache containers |
+| Rust | 1.70+ | Backend server |
+| Node.js | 20+ | Dashboard & frontend |
+| Go | 1.21+ | Go SDK |
+| Python | 3.11+ | Python SDK |
+| PHP | 8.2+ | PHP SDK |
+
+### Start the Backend
 
 ```bash
-cd spooled-backend
+# 1. Clone and enter the repo
+git clone https://github.com/Spooled-Cloud/spooled-cloud.git
+cd spooled-cloud/spooled-backend
 
-# Start infra deps (Postgres, Redis, PgBouncer)
+# 2. Start infrastructure (Postgres, Redis)
 docker compose up -d postgres redis pgbouncer
 
-# Run the API server (REST defaults to :8080; gRPC defaults to :50051)
+# 3. Run the API server
 cargo run
+
+# ✅ REST API available at http://localhost:8080
+# ✅ gRPC API available at localhost:50051
 ```
 
-### 2) Dashboard (defaults to `:4321`)
-
-The dashboard talks to the backend via `PUBLIC_API_URL`/`PUBLIC_WS_URL`.
+### Start the Dashboard
 
 ```bash
 cd spooled-dashboard
 
-# Run in Docker (defaults to :4321)
 PUBLIC_API_URL=http://localhost:8080 \
 PUBLIC_WS_URL=ws://localhost:8080 \
 docker compose up -d
+
+# ✅ Dashboard available at http://localhost:4321
 ```
 
-### 3) Marketing site + docs (Astro)
-
-Note: both `spooled-dashboard` and `spooled-frontend` default to port `4321`, so run one on another port.
+### Start the Docs Site
 
 ```bash
 cd spooled-frontend
 npm install
 npm run dev -- --port 4322
+
+# ✅ Docs available at http://localhost:4322
 ```
 
----
+### Local Ports Reference
 
-## Ports (local defaults)
-
-| Service | Default | Notes |
-|---|---:|---|
-| Backend REST + WS + SSE | `8080` | `PORT` env var |
-| Backend gRPC | `50051` | `GRPC_PORT` env var |
-| Dashboard | `4321` | `PORT` env var in docker compose |
-| Marketing/docs (Astro dev) | `4321` | recommend `--port 4322` to avoid collision |
-| Postgres (docker) | `5433` | maps to container `5432` |
-| PgBouncer (docker) | `6432` | maps to container `6432` |
-| Redis (docker) | `6379` |  |
+| Service | Port | Environment Variable |
+|---------|------|---------------------|
+| Backend REST/WS/SSE | 8080 | `PORT` |
+| Backend gRPC | 50051 | `GRPC_PORT` |
+| Dashboard | 4321 | `PORT` |
+| Docs (Astro) | 4322 | Use `--port` flag |
+| PostgreSQL | 5433 | Docker mapped |
+| PgBouncer | 6432 | Docker mapped |
+| Redis | 6379 | Docker mapped |
 
 ---
 
-## Testing
+## 🧪 Running Tests
 
 ```bash
-# Backend
+# Backend tests (Rust)
 cd spooled-backend && cargo test
 
-# Frontend (marketing/docs)
-cd spooled-frontend && npm run test && npm run lint
+# Frontend tests
+cd spooled-frontend && npm test && npm run lint
 
-# SDK golden tests
-cd spooled-sdk-nodejs && npm run test
+# SDK integration tests (the "golden" reference tests)
+cd spooled-sdk-nodejs && npm test
 cd spooled-sdk-python && python -m pytest
 cd spooled-sdk-go && go test ./...
 cd spooled-sdk-php && ./vendor/bin/phpunit
@@ -286,45 +471,104 @@ cd spooled-sdk-php && ./vendor/bin/phpunit
 
 ---
 
-## Contributing
+## 📚 Common Use Cases
 
-See per-package contribution guides:
+### 1. Process Stripe Webhooks
 
-- `spooled-backend/CONTRIBUTING.md`
-- `spooled-sdk-go/CONTRIBUTING.md`
+```typescript
+// Stripe sends webhook → Spooled queues it → Your worker processes it
+const job = await client.jobs.create({
+  queueName: "stripe-webhooks",
+  payload: stripeEvent,
+  idempotencyKey: stripeEvent.id, // Prevents duplicates!
+});
+```
 
-If you’re changing behavior, update:
+### 2. Send Emails in Background
 
-- SDK `test-local.*` scripts (canonical usage)
-- `spooled-frontend/src/lib/snippets.ts` (public docs snippets)
+```typescript
+// Don't make users wait for email sending
+const job = await client.jobs.create({
+  queueName: "emails",
+  payload: { to: user.email, template: "welcome" },
+  priority: 10, // Higher = processed first
+});
+```
+
+### 3. Schedule Daily Reports
+
+```typescript
+// Run every day at 9 AM EST
+const schedule = await client.schedules.create({
+  name: "daily-report",
+  queueName: "reports",
+  cronExpression: "0 0 9 * * *", // 6-field cron (with seconds!)
+  timezone: "America/New_York",
+  payload: { type: "daily-summary" },
+});
+```
+
+### 4. Workflow Dependencies
+
+```typescript
+// Job B runs only after Job A completes
+const workflow = await client.workflows.create({
+  name: "user-onboarding",
+  jobs: [
+    { id: "create-account", queueName: "accounts", payload: {...} },
+    { id: "send-welcome", queueName: "emails", payload: {...}, dependsOn: ["create-account"] },
+    { id: "setup-billing", queueName: "billing", payload: {...}, dependsOn: ["create-account"] },
+  ]
+});
+```
 
 ---
 
-## License
+## 🤝 Contributing
 
-Each package includes its own `LICENSE`. The backend and SDKs are Apache 2.0.
+We love contributions! See the contribution guides:
 
----
+- [Backend Contributing Guide](spooled-backend/CONTRIBUTING.md)
+- [Go SDK Contributing Guide](spooled-sdk-go/CONTRIBUTING.md)
 
-## Docs & useful references (in this repo)
+### Key Files to Update
 
-- Product docs: `spooled-frontend/src/pages/docs/*`
-- Backend OpenAPI: `spooled-backend/docs/openapi.yaml`
-- Backend guides: `spooled-backend/docs/guides/*`
-- Stripe/billing setup: `STRIPE_SETUP.md`
-- Frontend implementation notes: `FRONTEND_TECHNICAL_TASK.md`
-
----
-
-## Links
-
-- Website + docs: `https://spooled.cloud`
-- Dashboard: `https://dashboard.spooled.cloud`
+When changing behavior, remember to update:
+- SDK `test-local.*` scripts (canonical usage examples)
+- `spooled-frontend/src/lib/snippets.ts` (docs code snippets)
 
 ---
 
-## Sponsor
+## 📖 Documentation
 
-If Spooled saves you time (or prevents webhook outages), consider sponsoring development:
+| Resource | Location |
+|----------|----------|
+| 📚 Product Docs | `spooled-frontend/src/pages/docs/*` |
+| 📋 OpenAPI Spec | `spooled-backend/docs/openapi.yaml` |
+| 📝 Backend Guides | `spooled-backend/docs/guides/*` |
+| 💳 Stripe Setup | `STRIPE_SETUP.md` |
 
-- GitHub Sponsors: `https://github.com/sponsors/spooled-cloud`
+---
+
+## 📜 License
+
+Apache 2.0 — See [LICENSE](LICENSE) for details.
+
+---
+
+## 💖 Support the Project
+
+If Spooled saves you time or prevents webhook outages:
+
+- ⭐ **Star this repo** — It helps others find us!
+- 💝 **[Sponsor on GitHub](https://github.com/sponsors/spooled-cloud)** — Support development
+
+---
+
+<p align="center">
+  <b>Built with ❤️ for developers who hate losing webhooks</b>
+  <br><br>
+  <a href="https://spooled.cloud">Website</a> •
+  <a href="https://dashboard.spooled.cloud">Dashboard</a> •
+  <a href="https://spooled.cloud/docs">Documentation</a>
+</p>
