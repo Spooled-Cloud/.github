@@ -7,7 +7,7 @@
 ### Open-source webhook queue & background job infrastructure
 
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
-[![Go SDK](https://img.shields.io/badge/Go_SDK-v1.0.5-00ADD8?logo=go)](https://github.com/Spooled-Cloud/spooled-sdk-go)
+[![Go SDK](https://img.shields.io/github/v/release/Spooled-Cloud/spooled-sdk-go?label=Go%20SDK&logo=go&color=00ADD8)](https://github.com/Spooled-Cloud/spooled-sdk-go)
 [![Node SDK](https://img.shields.io/npm/v/@spooled/sdk?label=Node%20SDK&logo=npm)](https://www.npmjs.com/package/@spooled/sdk)
 [![Python SDK](https://img.shields.io/pypi/v/spooled?label=Python%20SDK&logo=python)](https://pypi.org/project/spooled/)
 [![PHP SDK](https://img.shields.io/packagist/v/spooled-cloud/spooled?label=PHP%20SDK&logo=php)](https://packagist.org/packages/spooled-cloud/spooled)
