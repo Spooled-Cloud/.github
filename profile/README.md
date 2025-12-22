@@ -1,7 +1,7 @@
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://spooled.cloud/logo-dark.svg">
   <source media="(prefers-color-scheme: light)" srcset="https://spooled.cloud/logo-light.svg">
-  <img alt="Spooled" src="https://spooled.cloud/" width="380">
+  <img alt="Spooled" src="https://spooled.cloud/logo-horizontal.webp" width="380">
 </picture>
 
 # Spooled Cloud
