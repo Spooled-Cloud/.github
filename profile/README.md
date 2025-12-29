@@ -378,10 +378,10 @@ x-api-key: sk_live_YOUR_API_KEY
 
 | Service | URL | Protocol |
 |---------|-----|----------|
-| 🌍 Website & Docs | https://spooled.cloud | HTTPS |
-| 📊 Dashboard | https://dashboard.spooled.cloud | HTTPS |
-| 🔌 REST API | https://api.spooled.cloud | HTTPS |
-| ⚡ gRPC API | grpc.spooled.cloud:443 | gRPC + TLS |
+| Website & Docs | https://spooled.cloud | HTTPS |
+| Dashboard | https://dashboard.spooled.cloud | HTTPS |
+| REST API | https://api.spooled.cloud | HTTPS |
+| gRPC API | grpc.spooled.cloud:443 | gRPC + TLS |
 
 ---
 
