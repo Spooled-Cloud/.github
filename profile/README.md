@@ -14,7 +14,7 @@
 
 ---
 
-## 🤔 What is Spooled?
+## What is Spooled?
 
 **Spooled is like a super-reliable to-do list for your servers.**
 
@@ -50,7 +50,7 @@ These tasks can fail (email server down, payment timeout, etc.). Spooled makes s
 
 ---
 
-## ✨ Key Features
+## Key Features
 
 | Feature | Description |
 |---------|-------------|
@@ -65,7 +65,7 @@ These tasks can fail (email server down, payment timeout, etc.). Spooled makes s
 
 ---
 
-## 🚀 Quick Start (5 minutes)
+## Quick Start (5 minutes)
 
 ### Step 1: Get an API Key
 
@@ -100,7 +100,7 @@ const job = await client.jobs.create({
   }
 });
 
-console.log("✅ Job created:", job.id);
+console.log("Job created:", job.id);
 ```
 </details>
 
@@ -125,7 +125,7 @@ job = client.jobs.create({
     }
 })
 
-print(f"✅ Job created: {job.id}")
+print(f"Job created: {job.id}")
 client.close()
 ```
 </details>
@@ -160,7 +160,7 @@ func main() {
         },
     })
 
-    fmt.Println("✅ Job created:", job.ID)
+    fmt.Println("Job created:", job.ID)
 }
 ```
 </details>
@@ -189,7 +189,7 @@ $job = $client->jobs->create([
     ]
 ]);
 
-echo "✅ Job created: {$job->id}\n";
+echo "Job created: {$job->id}\n";
 ```
 </details>
 
@@ -329,13 +329,13 @@ This is a **monorepo** containing the entire Spooled platform:
 
 ```
 spooled-cloud/
-├── spooled-backend/       # 🦀 Rust API server (REST + gRPC + WebSocket)
-├── spooled-dashboard/     # ⚛️  React dashboard (job monitoring, billing)
-├── spooled-frontend/      # 🚀 Astro marketing site + documentation
-├── spooled-sdk-nodejs/    # 🟢 Node.js/TypeScript SDK
-├── spooled-sdk-python/    # 🐍 Python SDK
-├── spooled-sdk-go/        # 🔵 Go SDK
-└── spooled-sdk-php/       # 🐘 PHP SDK
+├── spooled-backend/       # Rust API server (REST + gRPC + WebSocket)
+├── spooled-dashboard/     # React dashboard (job monitoring, billing)
+├── spooled-frontend/      # Astro marketing site + documentation
+├── spooled-sdk-nodejs/    # Node.js/TypeScript SDK
+├── spooled-sdk-python/    # Python SDK
+├── spooled-sdk-go/        # Go SDK
+└── spooled-sdk-php/       # PHP SDK
 ```
 
 ### SDK Status
@@ -349,7 +349,7 @@ spooled-cloud/
 
 ---
 
-## 🔑 Authentication
+## Authentication
 
 ### API Key Formats
 
@@ -411,8 +411,8 @@ docker compose up -d postgres redis pgbouncer
 # 3. Run the API server
 cargo run
 
-# ✅ REST API available at http://localhost:8080
-# ✅ gRPC API available at localhost:50051
+# REST API available at http://localhost:8080
+# gRPC API available at localhost:50051
 ```
 
 ### Start the Dashboard
@@ -424,7 +424,7 @@ PUBLIC_API_URL=http://localhost:8080 \
 PUBLIC_WS_URL=ws://localhost:8080 \
 docker compose up -d
 
-# ✅ Dashboard available at http://localhost:4321
+# Dashboard available at http://localhost:4321
 ```
 
 ### Start the Docs Site
@@ -434,7 +434,7 @@ cd spooled-frontend
 npm install
 npm run dev -- --port 4322
 
-# ✅ Docs available at http://localhost:4322
+# Docs available at http://localhost:4322
 ```
 
 ### Local Ports Reference
@@ -451,7 +451,7 @@ npm run dev -- --port 4322
 
 ---
 
-## 🧪 Running Tests
+## Running Tests
 
 ```bash
 # Backend tests (Rust)
@@ -469,7 +469,7 @@ cd spooled-sdk-php && ./vendor/bin/phpunit
 
 ---
 
-## 📚 Common Use Cases
+## Common Use Cases
 
 ### 1. Process Stripe Webhooks
 
@@ -522,7 +522,7 @@ const workflow = await client.workflows.create({
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 We love contributions! See the contribution guides:
 
@@ -539,22 +539,22 @@ When changing behavior, remember to update:
 
 ## 📖 Documentation
 
-| Resource | Location |
-|----------|----------|
-| 📚 Product Docs | `spooled-frontend/src/pages/docs/*` |
-| 📋 OpenAPI Spec | `spooled-backend/docs/openapi.yaml` |
-| 📝 Backend Guides | `spooled-backend/docs/guides/*` |
-| 💳 Stripe Setup | `STRIPE_SETUP.md` |
+|     Resource    |              Location               |
+|-----------------|-------------------------------------|
+| Product Docs    | `spooled-frontend/src/pages/docs/*` |
+| OpenAPI Spec    | `spooled-backend/docs/openapi.yaml` |
+| Backend Guides  | `spooled-backend/docs/guides/*`     |
+| Stripe Setup    | `STRIPE_SETUP.md`                   |
 
 ---
 
-## 📜 License
+## License
 
 Apache 2.0 — See [LICENSE](LICENSE) for details.
 
 ---
 
-## 💖 Support the Project
+## Support the Project
 
 If Spooled saves you time or prevents webhook outages:
 
