@@ -292,7 +292,7 @@ func main() {
 
 ---
 
-## 🏗️ Architecture Overview
+## Architecture Overview
 
 ```
                      ┌──────────────────────────────────────────┐
@@ -323,7 +323,7 @@ func main() {
 
 ---
 
-## 📦 What's in This Repository
+## What's in This Repository
 
 This is a **monorepo** containing the entire Spooled platform:
 
@@ -374,7 +374,7 @@ x-api-key: sk_live_YOUR_API_KEY
 
 ---
 
-## 🌐 Production Endpoints
+## Production Endpoints
 
 | Service | URL | Protocol |
 |---------|-----|----------|
@@ -385,7 +385,7 @@ x-api-key: sk_live_YOUR_API_KEY
 
 ---
 
-## 💻 Local Development
+## Local Development
 
 ### Prerequisites
 
@@ -537,7 +537,7 @@ When changing behavior, remember to update:
 
 ---
 
-## 📖 Documentation
+## Documentation
 
 |     Resource    |              Location               |
 |-----------------|-------------------------------------|
