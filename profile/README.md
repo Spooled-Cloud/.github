@@ -54,14 +54,14 @@ These tasks can fail (email server down, payment timeout, etc.). Spooled makes s
 
 | Feature | Description |
 |---------|-------------|
-| 📬 **Job Queues** | Reliable FIFO queues with priority support (0-100) |
-| 🔄 **Automatic Retries** | Configurable retry policies with exponential backoff |
-| ⏰ **Schedules** | Cron-based scheduling with timezone support (6-field with seconds!) |
-| 🔀 **Workflows** | DAG-based job dependencies (run job B after job A completes) |
-| 🪝 **Webhooks** | Receive webhooks from Stripe, GitHub, etc. → auto-queue as jobs |
-| 📊 **Real-time Dashboard** | See all your jobs, queues, and workers live |
-| 🚀 **High Performance** | gRPC streaming for workers processing 1000s of jobs/sec |
-| ☠️ **Dead Letter Queue** | Failed jobs are saved for inspection and manual retry |
+| **Job Queues** | Reliable FIFO queues with priority support (0-100) |
+| **Automatic Retries** | Configurable retry policies with exponential backoff |
+| **Schedules** | Cron-based scheduling with timezone support (6-field with seconds!) |
+| **Workflows** | DAG-based job dependencies (run job B after job A completes) |
+| **Webhooks** | Receive webhooks from Stripe, GitHub, etc. → auto-queue as jobs |
+| **Real-time Dashboard** | See all your jobs, queues, and workers live |
+| **High Performance** | gRPC streaming for workers processing 1000s of jobs/sec |
+| **Dead Letter Queue** | Failed jobs are saved for inspection and manual retry |
 
 ---
 
