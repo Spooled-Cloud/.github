@@ -47,13 +47,13 @@ and schedules the work, it never executes it.
    your app                    spooled                      your workers
    ────────                    ───────                      ────────────
 
-  enqueue  ──────────▶  ┌──────────────────┐  ◀──────────  claim
-                        │   queue (Postgres)│
-  webhook  ──────────▶  │  ● ● ● ● ●        │  ──────────▶  run your code
-  (Stripe, GitHub)      │                   │
-                        │  retries · priority│  ◀──────────  complete / fail
-  cron ──────────────▶  │  schedules · DLQ   │
-                        └─────────┬─────────┘
+  enqueue  ──────────▶  ┌──────────────────────┐  ◀──────────  claim
+                        │   queue (Postgres)   │
+  webhook  ──────────▶  │  ● ● ● ● ●           │  ──────────▶  run your code
+  (Stripe, GitHub)      │                      │
+                        │  retries · priority  │  ◀──────────  complete / fail
+  cron ──────────────▶  │  schedules · DLQ     │
+                        └─────────┬────────────┘
                                   │
                           state streams back
                           (WebSocket / SSE)
